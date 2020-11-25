@@ -1,13 +1,14 @@
 let canvas= document.getElementById("myCanvas");
 let ctx = canvas.getContext("2d");
 let x = canvas.width/2;
-let y = canvas.height-30;
+let y = canvas.height-40;
 let dx = 2;
-let dy = 4;
+let dy = -2;
 let ballRadius = 10;
 let PalaHeight= 10;
 let PalaWidth= 75;
 let PalaX= (canvas.width-PalaWidth)/2;
+let PalaY= (canvas.height-PalaHeight)-30;
 let rightPressed = false;
 let leftPressed = false;
 
@@ -45,7 +46,7 @@ function drawBall() {
 
 function drawPala() {
     ctx.beginPath();
-    ctx.rect(PalaX, canvas.height-PalaHeight-30 , PalaWidth, PalaHeight);
+    ctx.rect(PalaX, PalaY , PalaWidth, PalaHeight);
     ctx.fillStyle= "white";
     ctx.fill();
     ctx.closePath();
@@ -61,9 +62,19 @@ function draw() {
     if(x + dx > canvas.width-ballRadius || x + dx < ballRadius){
         dx = -dx;
     }
-    if(y + dy > canvas.height-ballRadius || y + dy < ballRadius){
-        dy= -dy;
+
+    if(y + dy < ballRadius) {
+        dy = -dy;
+    } else if(y + dy > canvas.height-40) {
+        if(x > PalaX && x < PalaX + PalaWidth) {
+            dy = -dy;
+        }
+        else {
+            alert("GAME OVER");
+            document.location.reload();
+        }
     }
+    
 
     if (rightPressed && PalaX < canvas.width-PalaWidth) {
         PalaX += 7;
