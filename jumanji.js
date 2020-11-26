@@ -18,17 +18,27 @@ let brickHeight = 20;
 let brickPadding = 10;
 let brickTop = 30;
 let brickLeft = 30; 
+let score = 0;
+let lives = 3;
 
 let bricks = [];
 for(c=0; c<brickColumnCount; c++){
     bricks[c] =  [];
     for(r=0; r<brickRowCount; r++) {
-        bricks [c][r] = {x: 0, y: 0};
+        bricks [c][r] = {x: 0, y: 0, status: 1};
     }
 }
 
 document.addEventListener("keydown", KeyDownHandler, false);
 document.addEventListener("keyup" , KeyUpHandler, false);
+document.addEventListener("mousemove", mouseMoveHandler, false);
+
+function mouseMoveHandler(e) {
+    let relativeX = e.clientX - canvas.offsetLeft;
+    if(relativeX > 0 && relativeX < canvas.width) {
+        PalaX = relativeX - PalaWidth/2;
+    }
+}
 
 function KeyDownHandler (e) {
 
@@ -50,7 +60,6 @@ function KeyUpHandler (e) {
     }
 }
 
-
 function drawBall() {
     ctx.beginPath();
     ctx.arc(x, y, ballRadius, 0, Math.PI*2);
@@ -70,17 +79,51 @@ function drawPala() {
 function drawBricks() {
     for(c=0; c<brickColumnCount; c++) {
         for(r=0; r<brickRowCount; r++) {
-            let brickX = (c*(brickWidth+brickPadding))+brickLeft;
-            let brickY = (r*(brickHeight+brickPadding))+brickTop;
-            bricks[c][r].x = brickX;
-            bricks[c][r].y = brickY;
-            ctx.beginPath();
-            ctx.rect(brickX, brickY, brickWidth, brickHeight);
-            ctx.fillStyle = "orange";
-            ctx.fill();
-            ctx.closePath();
+            if(bricks[c][r].status == 1) {
+                let brickX = (c*(brickWidth+brickPadding))+brickLeft;
+                let brickY = (r*(brickHeight+brickPadding))+brickTop;
+                bricks[c][r].x = brickX;
+                bricks[c][r].y = brickY;
+                ctx.beginPath();
+                ctx.rect(brickX, brickY, brickWidth, brickHeight);
+                ctx.fillStyle = "orange";
+                ctx.fill();
+                ctx.closePath();
+            }
         }
     }
+}
+
+function collisionDetection() {
+    for(c=0; c<brickColumnCount; c++) {
+        for(r=0; r<brickRowCount; r++){
+            let b= bricks[c][r];
+            if(b.status == 1){
+                if (x>b.x && x<b.x+brickWidth && y>b.y && y<b.y+brickHeight) {
+                    dy = -dy;
+                    b.status = 0;
+                    score++;
+                    if (score == brickRowCount*brickColumnCount){
+                        alert("YOU WIN, CONGRATULATIONS!");
+                        document.location.reload();
+                    }
+                }
+            }
+
+        }
+    }
+}
+
+function drawScore() {
+    ctx.font = "14px Arial";
+    ctx.fillStyle = "white";
+    ctx.fillText("Score: "+score, 8, 20);
+}
+
+function drawLives(){
+    ctx.font = "14px Arial";
+    ctx.fillStyle = "white";
+    ctx.fillText("Lives: "+lives, canvas.width-65, 20);
 }
 
 function draw() {
@@ -88,7 +131,11 @@ function draw() {
     
     drawBall();
     drawPala();
+    drawScore();
+    drawLives();
     drawBricks();
+    collisionDetection();
+    
 
     if(x + dx > canvas.width-ballRadius || x + dx < ballRadius){
         dx = -dx;
@@ -101,8 +148,18 @@ function draw() {
             dy = -dy;
         }
         else {
-            alert("GAME OVER");
-            document.location.reload();
+           lives--;
+           if(!lives){
+               alert("GAME OVER");
+               document.location.reload();
+           }
+           else{
+               x = canvas.width/2;
+               y = canvas.height-40;
+               dx = 2;
+               dy = -2;
+               PalaX = (canvas.width-PalaWidth)/2
+           }
         }
     }
     
@@ -115,13 +172,15 @@ function draw() {
         PalaX -= 7;
     }
 
-
+    
     x += dx;
     y += dy; 
+    requestAnimationFrame(draw);
 
 }
 
+draw();
 
 
-setInterval(draw, 10);
+
 
