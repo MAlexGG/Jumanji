@@ -11,6 +11,21 @@ let PalaX= (canvas.width-PalaWidth)/2;
 let PalaY= (canvas.height-PalaHeight)-30;
 let rightPressed = false;
 let leftPressed = false;
+let brickRowCount = 3;
+let brickColumnCount = 5;
+let brickWidth = 75;
+let brickHeight = 20;
+let brickPadding = 10;
+let brickTop = 30;
+let brickLeft = 30; 
+
+let bricks = [];
+for(c=0; c<brickColumnCount; c++){
+    bricks[c] =  [];
+    for(r=0; r<brickRowCount; r++) {
+        bricks [c][r] = {x: 0, y: 0};
+    }
+}
 
 document.addEventListener("keydown", KeyDownHandler, false);
 document.addEventListener("keyup" , KeyUpHandler, false);
@@ -52,12 +67,28 @@ function drawPala() {
     ctx.closePath();
 }
 
+function drawBricks() {
+    for(c=0; c<brickColumnCount; c++) {
+        for(r=0; r<brickRowCount; r++) {
+            let brickX = (c*(brickWidth+brickPadding))+brickLeft;
+            let brickY = (r*(brickHeight+brickPadding))+brickTop;
+            bricks[c][r].x = brickX;
+            bricks[c][r].y = brickY;
+            ctx.beginPath();
+            ctx.rect(brickX, brickY, brickWidth, brickHeight);
+            ctx.fillStyle = "orange";
+            ctx.fill();
+            ctx.closePath();
+        }
+    }
+}
+
 function draw() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     
     drawBall();
     drawPala();
-   
+    drawBricks();
 
     if(x + dx > canvas.width-ballRadius || x + dx < ballRadius){
         dx = -dx;
